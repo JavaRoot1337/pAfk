@@ -1,0 +1,22 @@
+name: pAfk
+version: '${project.version}'
+main: org.flaudz122.pafk.PAFK
+api-version: '1.21'
+depend: [WorldGuard]
+authors: [flaudz122, javaroot]
+website: https://github.com/javaroot1337
+description: плагин ратка не качайте
+
+commands:
+  afkreload:
+    description: Перезагрузка плагина
+    permission: afkzone.admin
+    usage: /afkreload
+
+permissions:
+  afkzone.admin:
+    description: Право на перезагрузку плагина
+    default: op
+  afkzone.premium:
+    description: Право на получение наград в премиум AFK зоне
+    default: op

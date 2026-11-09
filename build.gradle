@@ -1,0 +1,145 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'com.diffplug.spotless' version '8.11.0'
+    id 'checkstyle'
+    id 'com.github.spotbugs' version '6.5.13'
+    id 'jacoco'
+    id 'org.owasp.dependencycheck' version '12.1.0'
+}
+
+group = 'org.flaudz122.pafk'
+version = '1.0.0-SNAPSHOT'
+description = 'Paper AFK Zones plugin for Minecraft 1.21.4+'
+
+// JDK 25 для компиляции (как в Maven: maven-compiler-plugin release=25)
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://repo.papermc.io/repository/maven-public/' }
+    maven { url = 'https://maven.enginehub.org/repo/' }
+    maven { url = 'https://oss.sonatype.org/content/groups/public/' }
+}
+
+dependencies {
+    // Paper API (в Maven scope=provided -> в Gradle compileOnly)
+    compileOnly 'io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT'
+
+    // WorldGuard Bukkit (1.21+)
+    compileOnly('com.sk89q.worldguard:worldguard-bukkit:7.0.12') {
+        exclude group: 'org.bukkit', module: 'bukkit'
+    }
+
+    // WorldEdit Bukkit (требуется WorldGuard)
+    compileOnly('com.sk89q.worldedit:worldedit-bukkit:7.3.9') {
+        exclude group: 'org.bukkit', module: 'bukkit'
+    }
+
+    testImplementation 'io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
+
+spotless {
+    java {
+        target 'src/**/*.java'
+        importOrder()
+        removeUnusedImports()
+    }
+}
+
+tasks.withType(Checkstyle).configureEach {
+    configFile = file('config/checkstyle/checkstyle.xml')
+    showViolations = true
+    maxErrors = 0
+    maxWarnings = 0
+}
+
+spotbugs {
+    spotbugsTest.enabled = false
+}
+
+spotbugsMain {
+    excludeFilter = file('config/spotbugs/excludes.xml')
+    reports {
+        html.required = true
+        xml.required = true
+    }
+}
+
+tasks.jacocoTestReport {
+    dependsOn tasks.test
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+tasks.check {
+    dependsOn tasks.spotlessCheck, tasks.checkstyleMain, tasks.checkstyleTest, tasks.spotbugsMain, tasks.jacocoTestReport
+}
+
+// WorldGuard/WorldEdit публикуют {strictly}-ограничения на версии библиотек,
+// кофликтующие с новыми версиями из paper-api. Все зависимости compileOnly
+// (сервер предоставляет свои версии), поэтому жёстко задаём версии paper-api.
+configurations.configureEach {
+    resolutionStrategy {
+        force 'com.google.guava:guava:33.3.1-jre',
+              'com.google.code.gson:gson:2.11.0',
+              'it.unimi.dsi:fastutil:8.5.15'
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 25
+}
+
+// Аналог resource filtering из Maven: подстановка ${project.version} в plugin.yml
+tasks.processResources {
+    filteringCharset = 'UTF-8'
+    filesMatching('plugin.yml') {
+        expand 'project': [version: project.version.toString()]
+    }
+}
+
+// Аналог defaultGoal clean package из Maven
+defaultTasks 'clean', 'build'
+
+// POM-метаданные для публикации в mavenLocal/репозиторий
+publishing {
+    publications {
+        register('maven', MavenPublication) {
+            from components.java
+            pom {
+                name = 'pAfk'
+                description = 'Paper AFK Zones plugin for Minecraft 1.21.4+'
+                scm {
+                    url = 'https://github.com/javaroot1337'
+                }
+                developers {
+                    developer {
+                        id = 'flaudz122'
+                        name = 'flaudz122'
+                        roles = ['author']
+                    }
+                    developer {
+                        id = 'javaroot'
+                        name = 'javaroot'
+                        url = 'https://github.com/javaroot1337'
+                        roles = ['co-author']
+                    }
+                }
+            }
+        }
+    }
+}

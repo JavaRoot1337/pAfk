@@ -1,0 +1,41 @@
+settings:
+  world-name: "world"
+  region-name: "afk"
+  premium-region-name: "premiumafk"
+  premium-permission: "afkzone.premium"
+  reward-command-weekday: "p give %player% 30"
+  reward-command-weekend: "p give %player% 60"
+  reward-premium-weekday: "p give %player% 100"
+  reward-premium-weekend: "p give %player% 200"
+
+bossbar:
+  color-normal: "GREEN"
+  color-premium: "PURPLE"
+  overlay: "NOTCHED_10"
+  # Текст босс-бара для обычной зоны
+  title-normal: "&a&lАфк-Зона &7» &fНаграда через: &e%time%"
+  # Текст босс-бара для премиум зоны
+  title-premium: "&d&lПремиум Афк-Зона &7» &fНаграда через: &e%time%"
+
+  # Формат плейсхолдера %time%
+  # Доступные переменные:
+  #   %m% или %minutes% - минуты (14)
+  #   %mm%              - минуты с нулём (14)
+  #   %s% или %seconds% - секунды (5)
+  #   %ss%              - секунды с нулём (05)
+  # Примеры: "%m% мин. %s% сек." или "%mm%:%ss%"
+  time-format: "%m% мин. %s% сек."
+
+messages:
+  title-normal: "&6Афк Зона"
+  title-premium: "&6Премиум Афк Зона"
+  bossbar-title: "&lАфк-Зона &7» &fНаграда через: &e%time%"
+  reload-success: "&6Афк-Зона &7» &aНастройки обновлены!"
+  no-permission: "&6Афк-Зона &7» &cУ вас недостаточно прав!"
+  no-premium-access: "&6Афк-Зона &7» &cУ вас нет доступа к Премиум АФК зоне!"
+
+sound:
+  enabled: true
+  name: "entity.player.levelup"
+  volume: 1.0
+  pitch: 1.0
